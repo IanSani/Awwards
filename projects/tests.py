@@ -43,3 +43,20 @@ class ProjectTest(TestCase):
         self.project.save()
         project = Project.find_project('blog')
         self.assertTrue(len(project) > 0)
+
+class ReviewsTest(TestCase):
+    def setUp(self):
+        self.user = User.objects.create(id = 1, username='zyzu')
+
+        self.review= Reviews.objects.create(juror= self.user, design=5, usability=5,content=5,comment="good" )
+
+    def test_instance(self):
+        self.assertTrue(isinstance(self.review, Reviews))
+
+    def test_save_review(self):
+        self.assertTrue(isinstance(self.review,Reviews))
+
+    def test_get_reviews(self):
+        self.review.save()
+        review = Reviews.get_reviews()
+        self.assertTrue(len(review) == 1)
