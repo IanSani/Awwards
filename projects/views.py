@@ -100,3 +100,27 @@ def add_review(request,pk):
     else:
         form = ReviewForm()
         return render(request,'review.html',{"user":current_user,"form":form})
+
+@login_required(login_url='/accounts/login/')
+def search_results(request):
+
+    if 'title' in request.GET and request.GET["title"]:
+        search_term = request.GET.get("title")
+        searched_project = Project.find_project(search_term)
+        message = search_term
+
+        return render(request,'search.html',{"message":message,
+                                             "searched_project":searched_project})
+    else:
+        message = "You haven't searched for any project"
+        return render(request,'search.html',{"message":message})
+
+@login_required(login_url='/accounts/login/')
+def all(request, pk):
+    profile = Profile.objects.get(pk=pk)
+    projects = Project.objects.all().filter(posted_by_id=pk)
+    content = {
+        "profile": profile,
+        'projects': projects,
+    }
+    return render(request, 'profile.html', content)
