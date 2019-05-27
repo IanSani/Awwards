@@ -41,8 +41,8 @@ def home(request):
 @login_required(login_url='/accounts/login/')
 def profile(request,profile_id):
 
-    profile = Profile.objects.get(pk = profile_id)
-    projects = Project.objects.filter(profile_id=profile).all()
+    profile = Profile.objects.get(user = request.user)
+    projects = Project.objects.filter(profile=profile_id).all()
 
     return render(request,"profile.html",{"profile":profile,"projects":projects})
 
@@ -64,20 +64,17 @@ def add_profile(request):
 @login_required(login_url='/accounts/login/')
 def update_project(request):
     current_user = request.user
-    profiles = Profile.get_profile()
-    for profile in profiles:
-        if profile.user.id == current_user.id:
-            if request.method == 'POST':
-                form = UploadForm(request.POST,request.FILES)
-                if form.is_valid():
-                    upload = form.save(commit=False)
-                    upload.posted_by = current_user
-                    upload.profile = profile
-                    upload.save()
-                    return redirect('home')
-            else:
-                form = UploadForm()
-            return render(request,'upload.html',{"user":current_user,"form":form})
+    if request.method == 'POST':
+        form = UploadForm(request.POST,request.FILES)
+        if form.is_valid():
+            upload = form.save(commit=False)
+            upload.posted_by = current_user
+            upload.profile = current_user.id
+            upload.save()
+            return redirect('home')
+    else:
+        form = UploadForm()
+    return render(request,'upload.html',{"user":current_user,"form":form})
 
 @login_required(login_url='/accounts/login/')
 def add_review(request,pk):
